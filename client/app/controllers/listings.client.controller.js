@@ -14,6 +14,27 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
       });
     };
 
+
+    // This function is used to return the listings with coordinates.
+    $scope.findWithCoordinates = function(){
+      $scope.loading = true;
+
+      Listings.getAll().then(function(response){
+        $scope.loading = false;
+        $scope.listings = [];
+        response.data.forEach(function(listing){
+          if(listing.coordinates){
+            $scope.listings.push(listing);
+          }
+        });
+
+      }, function(error){
+        $scope.loading = false;
+        $scope.error = "Unable to retrieve listings!\n + error";
+      });
+    };
+
+
     $scope.findOne = function() {
       debugger;
       $scope.loading = true;
@@ -80,20 +101,17 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
         occurs, pass it to $scope.error. 
        */
 
-      $scope.error = null;
+      if(isValid){
+        var id = $stateParams.listingId;
 
-      var listing = {
-        name: $scope.name,
-        code: $scope.code,
-        address: $scope.address
-      };
-
-      Listings.update(listing)
+        Listings.update(id, $scope.listing)
               .then(function(response) {
-                $state.go('listings.update', { successMessage: 'Listing update successful!' });
+                $state.go('listings.list', { successMessage: 'Listing update successful!' });
               }, function(error) {
                 $scope.error = 'Unable to update listing\n' + error;
               });
+      }
+      
     };
 
     $scope.remove = function() {
@@ -102,15 +120,9 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
         display the error. 
        */
 
-      $scope.error = null;
+      var id = $stateParams.listingId;
 
-      var listing = {
-        name: $scope.name,
-        code: $scope.code,
-        address: $scope.address
-      };
-
-      Listings.delete(listing)
+      Listings.delete(id, $scope.listing)
               .then(function(response) {
                 $state.go('listings.list', { successMessage: 'Listing deletion successful!' });
               }, function(error) {
