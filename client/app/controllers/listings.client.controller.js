@@ -96,19 +96,24 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
 
     $scope.update = function(isValid) {
       /*
-        Fill in this function that should update a listing if the form is valid. Once the update has
-        successfully finished, navigate back to the 'listing.list' state using $state.go(). If an error
-        occurs, pass it to $scope.error.
-       */
-
-      if(isValid){
-        var id = $stateParams.listingId;
-        Listings.update(id, $scope.listing).then(function(response) {
-          $state.go('listings.list', { successMessage: 'Listing update successful!' });
-        }, function(error) {
-          $scope.error = 'Unable to update listing\n' + error;
-        });
-      }
+              Fill in this function that should update a listing if the form is valid. Once the update has
+              successfully finished, navigate back to the 'listing.list' state using $state.go(). If an error
+              occurs, pass it to $scope.error.
+             */
+            $scope.error = null;
+            if (!isValid) {
+                $scope.$broadcast('show-errors-check-validity', 'articleForm');
+                return false;
+            }
+            var listing = {
+                    name: $scope.name,
+                    code: $scope.code,
+                    address: $scope.address
+            },id = $stateParams.listingId;
+            Listings.update(id, listing).then(function(response) {$state.go('listings.list', {
+              successMessage: 'Listing succesfully updated!'});
+            }, function(error) {$scope.error = 'Unable to save listing!\n' + error;
+            });
     };
 
     $scope.remove = function() {
